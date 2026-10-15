@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kesir Kaşifi: Sayı Doğrusunda İşlemler | TYMM 6. Sınıf</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@600;700;800&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-outfit { font-family: 'Outfit', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+  <!-- Header -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-lg shadow-sm">
+          📐
+        </div>
+        <div>
+          <h1 class="text-base font-extrabold text-slate-900 leading-tight">Kesir Kaşifi</h1>
+          <p class="text-[11px] text-slate-500 font-medium">TYMM 6. Sınıf Matematik · Sayı Doğrusunda Kesirler</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="bg-amber-50 border border-amber-200 text-amber-900 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5">
+          <span>⭐</span>
+          <span>Puan: <span id="score-display">0</span></span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-6xl mx-auto px-4 py-6 space-y-6">
+    <!-- Chapter Navigation -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3" id="chapter-nav"></div>
+
+    <!-- Active Mission Card -->
+    <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <span id="mission-badge" class="text-xs font-bold uppercase tracking-wider text-indigo-600">Görev 1</span>
+            <span class="text-xs text-slate-400">·</span>
+            <span id="mission-theme" class="text-xs text-slate-500 font-medium">Doğa Yürüyüşü</span>
+          </div>
+          <h2 id="mission-title" class="text-xl font-extrabold text-slate-900 mt-0.5">Yükleniyor...</h2>
+        </div>
+        <button id="hint-btn" class="px-3.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 self-start md:self-auto">
+          💡 Eğitsel İpucu Al
+        </button>
+      </div>
+
+      <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm text-slate-700 space-y-2">
+        <p id="mission-story" class="leading-relaxed"></p>
+        <div class="font-bold text-indigo-900 pt-1" id="mission-question"></div>
+      </div>
+    </div>
+
+    <!-- Interactive Number Line -->
+    <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+      <div class="flex items-center justify-between text-xs">
+        <span class="font-bold text-slate-500 uppercase">Sayı Doğrusu Sahnesi</span>
+        <div class="flex items-center gap-3">
+          <span class="inline-flex items-center gap-1"><span class="w-3 h-1 bg-blue-500 rounded-full"></span> 1. Hareket</span>
+          <span class="inline-flex items-center gap-1"><span class="w-3 h-1 bg-emerald-500 rounded-full"></span> İleri (+)</span>
+          <span class="inline-flex items-center gap-1"><span class="w-3 h-1 bg-rose-500 rounded-full"></span> Geri (-)</span>
+        </div>
+      </div>
+
+      <!-- SVG Number line -->
+      <div class="overflow-x-auto pb-2">
+        <svg id="numberline-svg" width="900" height="260" class="select-none mx-auto block"></svg>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-between gap-3 text-xs pt-2 border-t border-slate-100">
+        <div>
+          <span class="text-slate-500">Şu Anki Konum:</span>
+          <span id="pos-readout" class="font-bold text-slate-900 font-mono text-sm ml-1">0/5</span>
+        </div>
+        <div>
+          <span class="text-slate-500">Hedef:</span>
+          <span id="target-readout" class="font-bold text-amber-700 font-mono text-sm ml-1">7/5</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Partition Control Slider -->
+    <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-indigo-600">Kavramsal Payda Ayarlayıcı</span>
+          <h3 class="text-base font-bold text-slate-900 mt-0.5">Her 1 Tamı Kaç Eş Parçaya Bölelim?</h3>
+        </div>
+        <div class="bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-2 flex items-center gap-3 self-start sm:self-auto">
+          <div class="text-right text-[11px] font-semibold text-indigo-700">Birim Adım:</div>
+          <div class="font-bold text-indigo-900 bg-white px-2.5 py-0.5 rounded border border-indigo-200 font-mono text-sm" id="unit-badge">1/5</div>
+        </div>
+      </div>
+
+      <div>
+        <input type="range" id="partition-slider" min="1" max="24" value="5" class="w-full h-3 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+        <div class="flex justify-between text-[11px] text-slate-400 font-mono mt-1">
+          <span>1 parça</span>
+          <span>6</span>
+          <span>12</span>
+          <span>18</span>
+          <span>24 parça</span>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100">
+        <span class="text-xs font-semibold text-slate-600">Hızlı Parçalama:</span>
+        <div class="flex flex-wrap gap-1.5" id="quick-buttons"></div>
+      </div>
+    </div>
+
+    <!-- Action Controls & Equation -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Movement -->
+      <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+        <span class="text-xs font-bold uppercase tracking-wider text-indigo-600">Hareket Kontrolleri</span>
+        <div class="flex flex-wrap gap-2">
+          <button id="step-fwd-btn" class="flex-1 px-4 py-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-xl text-xs sm:text-sm border border-indigo-200">
+            +1 Birim İlerle
+          </button>
+          <button id="step-bwd-btn" class="flex-1 px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs sm:text-sm border border-slate-200">
+            -1 Birim Geri Git
+          </button>
+        </div>
+        <button id="step-direct-btn" class="w-full px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm shadow-md shadow-emerald-200">
+          Mevcut Adımı Zıpla
+        </button>
+        <button id="check-btn" class="w-full px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm shadow-md shadow-indigo-200">
+          Cevabımı Kontrol Et
+        </button>
+      </div>
+
+      <!-- Live Equation -->
+      <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-3">
+        <span class="text-xs font-bold uppercase tracking-wider text-indigo-600">Canlı Matematiksel İfade</span>
+        <div id="equation-box" class="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-center font-bold text-lg min-h-[70px] flex items-center justify-center gap-2"></div>
+        <p class="text-xs text-slate-500 text-center" id="learning-goal-text"></p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal -->
+  <div id="modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 border border-slate-200 shadow-2xl space-y-4">
+      <h3 id="modal-title" class="text-xl font-extrabold text-slate-900"></h3>
+      <p id="modal-body" class="text-sm text-slate-600 leading-relaxed bg-slate-50 p-4 rounded-2xl border border-slate-100"></p>
+      <div class="flex justify-end gap-2 pt-2">
+        <button id="modal-close" class="px-5 py-2.5 bg-slate-900 text-white font-bold rounded-xl text-xs">Tamam</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Missions Data
+    const MISSIONS = [
+      {
+        id: "hiking-1",
+        chapter: "Doğa Yürüyüşü",
+        title: "Likya Yolu Başlangıcı (3/5 + 4/5)",
+        story: "Alp, doğa yürüyüşünde önce patikanın 3/5 km'lik kısmını yürüdü. Ardından 4/5 km daha ilerledi.",
+        question: "Alp toplamda kaçıncı kilometreye ulaşmıştır?",
+        steps: [
+          { type: 'add', num: 3, den: 5, label: '3/5 km' },
+          { type: 'add', num: 4, den: 5, label: '+4/5 km' }
+        ],
+        targetNum: 7, targetDen: 5,
+        recDen: 5,
+        avatar: '🏃'
+      },
+      {
+        id: "hiking-2",
+        chapter: "Doğa Yürüyüşü",
+        title: "Unutulan Su Matarası (7/5 - 2/5)",
+        story: "Alp 7/5 km noktasındayken matarasını 2/5 km geride unuttuğunu fark edip geri döndü.",
+        question: "Alp şimdi kaçıncı kilometrededir?",
+        steps: [
+          { type: 'add', num: 7, den: 5, label: '7/5 km' },
+          { type: 'subtract', num: 2, den: 5, label: '-2/5 km' }
+        ],
+        targetNum: 5, targetDen: 5,
+        recDen: 5,
+        avatar: '🏃'
+      },
+      {
+        id: "rover-1",
+        chapter: "Yerli Rover",
+        title: "Güneş Paneli Enerji Hattı (1/2 + 3/4)",
+        story: "Rover önce 1/2 birim gitti, ardından 3/4 birim daha yol alıp şarj ünitesine vardı.",
+        question: "Rover hangi noktadadır?",
+        steps: [
+          { type: 'add', num: 1, den: 2, label: '1/2 birim' },
+          { type: 'add', num: 3, den: 4, label: '+3/4 birim' }
+        ],
+        targetNum: 5, targetDen: 4,
+        recDen: 4,
+        avatar: '🤖'
+      },
+      {
+        id: "rover-2",
+        chapter: "Yerli Rover",
+        title: "Kraterden Geri Çekilme (5/3 - 1/2)",
+        story: "Rover üsten 5/3 birimdeki kraterden fırtına uyarısıyla 1/2 birim geri çekildi.",
+        question: "Rover ana üsten kaç birim uzaktadır?",
+        steps: [
+          { type: 'add', num: 5, den: 3, label: '5/3 birim' },
+          { type: 'subtract', num: 1, den: 2, label: '-1/2 birim' }
+        ],
+        targetNum: 7, targetDen: 6,
+        recDen: 6,
+        avatar: '🤖'
+      },
+      {
+        id: "agri-1",
+        chapter: "Ekolojik Tarım",
+        title: "Damlama Sulama Başlıkları (5 x 1/4)",
+        story: "Sulama borusu üzerine her 1/4 metrede bir 5 adet damlatıcı takılmıştır.",
+        question: "Ulaşılan toplam uzunluk kaç metredir?",
+        steps: [
+          { type: 'add', num: 1, den: 4, label: '+1/4 m' },
+          { type: 'add', num: 1, den: 4, label: '+1/4 m' },
+          { type: 'add', num: 1, den: 4, label: '+1/4 m' },
+          { type: 'add', num: 1, den: 4, label: '+1/4 m' },
+          { type: 'add', num: 1, den: 4, label: '+1/4 m' }
+        ],
+        targetNum: 5, targetDen: 4,
+        recDen: 4,
+        avatar: '🚜'
+      }
+    ];
+
+    let currentMissionIdx = 0;
+    let partition = 5;
+    let currentPos = 0;
+    let activeStepIdx = 0;
+    let executedSteps = [];
+    let score = 0;
+
+    // Web Audio Synth
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    const audioCtx = AudioContextClass ? new AudioContextClass() : null;
+    function playBeep(freq = 600, duration = 0.08) {
+      if (!audioCtx) return;
+      try {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch(e) {}
+    }
+
+    function init() {
+      renderNav();
+      loadMission(0);
+
+      document.getElementById('partition-slider').addEventListener('input', (e) => {
+        partition = parseInt(e.target.value);
+        playBeep(450, 0.05);
+        document.getElementById('unit-badge').textContent = '1/' + partition;
+        executedSteps = [];
+        currentPos = 0;
+        activeStepIdx = 0;
+        renderNumberLine();
+        renderEquation();
+      });
+
+      document.getElementById('step-fwd-btn').addEventListener('click', () => {
+        currentPos = Math.min(partition * 3, currentPos + 1);
+        playBeep(700, 0.06);
+        renderNumberLine();
+      });
+
+      document.getElementById('step-bwd-btn').addEventListener('click', () => {
+        currentPos = Math.max(0, currentPos - 1);
+        playBeep(500, 0.06);
+        renderNumberLine();
+      });
+
+      document.getElementById('step-direct-btn').addEventListener('click', () => {
+        const m = MISSIONS[currentMissionIdx];
+        if (activeStepIdx < m.steps.length) {
+          const st = m.steps[activeStepIdx];
+          const factor = partition / st.den;
+          if (partition % st.den !== 0) {
+            showModal('Ortak Payda Gerekli', 'Kesrin paydası ' + st.den + '. Sayı doğrusunu ' + st.den + ' veya katlarına bölmelisin!');
+            return;
+          }
+          const stepSize = st.num * factor;
+          const from = currentPos;
+          const to = st.type === 'subtract' ? Math.max(0, currentPos - stepSize) : currentPos + stepSize;
+
+          executedSteps.push({
+            from: from,
+            to: to,
+            type: st.type,
+            label: st.label
+          });
+
+          currentPos = to;
+          activeStepIdx++;
+          playBeep(850, 0.12);
+          renderNumberLine();
+          renderEquation();
+        }
+      });
+
+      document.getElementById('check-btn').addEventListener('click', () => {
+        const m = MISSIONS[currentMissionIdx];
+        const targetInPartition = (m.targetNum / m.targetDen) * partition;
+        if (currentPos === targetInPartition) {
+          playBeep(1046, 0.3);
+          score += 100;
+          document.getElementById('score-display').textContent = score;
+          showModal('Harika! Doğru Cevap', 'Tebrikler! Sayı doğrusundaki eş parçaları başarıyla kullandın ve hedefe ulaştın.');
+        } else {
+          playBeep(250, 0.2);
+          showModal('Yapıcı İpucu', 'Hedef noktası ' + m.targetNum + '/' + m.targetDen + ' idi. Şu an ' + currentPos + '/' + partition + ' noktasındasın. Birim kesir adımlarını kontrol et!');
+        }
+      });
+
+      document.getElementById('hint-btn').addEventListener('click', () => {
+        const m = MISSIONS[currentMissionIdx];
+        showModal('Eğitsel İpucu', 'Bu görevde kesirleri doğru temsil edebilmek için sayı doğrusunu ' + m.recDen + ' eş parçaya bölmeyi deneyebilirsin!');
+      });
+
+      document.getElementById('modal-close').addEventListener('click', () => {
+        document.getElementById('modal').classList.add('hidden');
+        document.getElementById('modal').classList.remove('flex');
+      });
+    }
+
+    function loadMission(idx) {
+      currentMissionIdx = idx;
+      const m = MISSIONS[idx];
+      partition = m.recDen;
+      currentPos = 0;
+      activeStepIdx = 0;
+      executedSteps = [];
+
+      document.getElementById('mission-badge').textContent = 'Görev ' + (idx + 1);
+      document.getElementById('mission-theme').textContent = m.chapter;
+      document.getElementById('mission-title').textContent = m.title;
+      document.getElementById('mission-story').textContent = m.story;
+      document.getElementById('mission-question').textContent = m.question;
+      document.getElementById('partition-slider').value = partition;
+      document.getElementById('unit-badge').textContent = '1/' + partition;
+
+      renderQuickButtons();
+      renderNumberLine();
+      renderEquation();
+      renderNav();
+    }
+
+    function renderNav() {
+      const nav = document.getElementById('chapter-nav');
+      nav.innerHTML = '';
+      MISSIONS.forEach((m, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'p-3 rounded-2xl border text-left text-xs font-bold transition-all ' + 
+          (i === currentMissionIdx ? 'bg-indigo-600 text-white border-indigo-700 shadow-sm' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50');
+        btn.innerHTML = '<div>' + m.chapter + '</div><div class="text-[11px] opacity-80 mt-0.5">' + m.title + '</div>';
+        btn.onclick = () => loadMission(i);
+        nav.appendChild(btn);
+      });
+    }
+
+    function renderQuickButtons() {
+      const q = document.getElementById('quick-buttons');
+      q.innerHTML = '';
+      [2, 3, 4, 5, 6, 8, 12, 16, 24].forEach(n => {
+        const b = document.createElement('button');
+        b.className = 'px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700';
+        b.textContent = n;
+        b.onclick = () => {
+          partition = n;
+          document.getElementById('partition-slider').value = n;
+          document.getElementById('unit-badge').textContent = '1/' + n;
+          executedSteps = [];
+          currentPos = 0;
+          activeStepIdx = 0;
+          renderNumberLine();
+          renderEquation();
+        };
+        q.appendChild(b);
+      });
+    }
+
+    function renderNumberLine() {
+      const svg = document.getElementById('numberline-svg');
+      const width = 900;
+      const height = 260;
+      const padX = 50;
+      const lineY = 170;
+      const maxNumber = 3;
+      const usable = width - padX * 2;
+      const totalTicks = maxNumber * partition;
+
+      const m = MISSIONS[currentMissionIdx];
+      const targetVal = (m.targetNum / m.targetDen);
+      const targetX = padX + (targetVal / maxNumber) * usable;
+
+      function getX(val) {
+        return padX + (val / totalTicks) * usable;
+      }
+
+      let html = '<defs>' +
+        '<marker id="ar-g" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 1 L 10 5 L 0 9 z" fill="#10B981"/></marker>' +
+        '<marker id="ar-r" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 1 L 10 5 L 0 9 z" fill="#EF4444"/></marker>' +
+        '<marker id="ar-b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 1 L 10 5 L 0 9 z" fill="#3B82F6"/></marker>' +
+        '</defs>';
+
+      // Base spine
+      html += '<line x1="' + (padX - 10) + '" y1="' + lineY + '" x2="' + (width - padX + 10) + '" y2="' + lineY + '" stroke="#94A3B8" stroke-width="3" stroke-linecap="round"/>';
+
+      // Arcs
+      executedSteps.forEach((s, idx) => {
+        const x1 = getX(s.from);
+        const x2 = getX(s.to);
+        const midX = (x1 + x2) / 2;
+        const dist = Math.abs(x2 - x1);
+        const arcH = Math.min(90, Math.max(35, dist * 0.35));
+        const color = s.type === 'subtract' ? '#EF4444' : (idx === 0 ? '#3B82F6' : '#10B981');
+        const marker = s.type === 'subtract' ? 'ar-r' : (idx === 0 ? 'ar-b' : 'ar-g');
+
+        html += '<path d="M ' + x1 + ' ' + lineY + ' Q ' + midX + ' ' + (lineY - arcH) + ' ' + x2 + ' ' + lineY + '" fill="none" stroke="' + color + '" stroke-width="3" marker-end="url(#' + marker + ')"/>';
+        html += '<text x="' + midX + '" y="' + (lineY - arcH - 6) + '" font-size="11" font-weight="bold" fill="' + color + '" text-anchor="middle">' + s.label + '</text>';
+      });
+
+      // Ticks
+      for (let i = 0; i <= totalTicks; i++) {
+        const x = getX(i);
+        const isWhole = (i % partition === 0);
+        html += '<line x1="' + x + '" y1="' + (isWhole ? lineY - 14 : lineY - 7) + '" x2="' + x + '" y2="' + (isWhole ? lineY + 14 : lineY + 7) + '" stroke="' + (isWhole ? '#0F172A' : '#94A3B8') + '" stroke-width="' + (isWhole ? '3' : '1.5') + '" />';
+        if (isWhole) {
+          html += '<text x="' + x + '" y="' + (lineY + 34) + '" font-size="14" font-weight="800" fill="#0F172A" text-anchor="middle">' + (i / partition) + '</text>';
+        } else if (partition <= 12) {
+          html += '<text x="' + x + '" y="' + (lineY + 26) + '" font-size="9" fill="#64748B" text-anchor="middle">' + (i % partition) + '/' + partition + '</text>';
+        }
+      }
+
+      // Target pin
+      html += '<line x1="' + targetX + '" y1="' + (lineY - 70) + '" x2="' + targetX + '" y2="' + lineY + '" stroke="#F59E0B" stroke-width="2" stroke-dasharray="3 3"/>';
+      html += '<text x="' + targetX + '" y="' + (lineY - 75) + '" font-size="10" font-weight="bold" fill="#B45309" text-anchor="middle">🚩 Hedef</text>';
+
+      // Avatar
+      const curX = getX(currentPos);
+      html += '<circle cx="' + curX + '" cy="' + (lineY - 22) + '" r="16" fill="#4F46E5" />';
+      html += '<text x="' + curX + '" y="' + (lineY - 17) + '" font-size="15" text-anchor="middle">' + m.avatar + '</text>';
+      html += '<text x="' + curX + '" y="' + (lineY - 44) + '" font-size="10" font-weight="bold" fill="#4F46E5" text-anchor="middle">' + currentPos + '/' + partition + '</text>';
+
+      svg.innerHTML = html;
+
+      document.getElementById('pos-readout').textContent = currentPos + '/' + partition;
+      document.getElementById('target-readout').textContent = m.targetNum + '/' + m.targetDen;
+    }
+
+    function renderEquation() {
+      const m = MISSIONS[currentMissionIdx];
+      let eqHtml = '';
+      m.steps.forEach((st, i) => {
+        if (i > 0) eqHtml += '<span class="text-slate-400 mx-1">' + (st.type === 'subtract' ? '−' : '+') + '</span>';
+        eqHtml += '<span class="px-2 py-1 bg-white border border-slate-200 rounded-lg text-indigo-700">' + st.num + '/' + st.den + '</span>';
+      });
+      eqHtml += '<span class="text-slate-400 mx-1">=</span>';
+      eqHtml += '<span class="px-2.5 py-1 bg-amber-50 border border-amber-200 rounded-lg text-amber-900">' + m.targetNum + '/' + m.targetDen + '</span>';
+      document.getElementById('equation-box').innerHTML = eqHtml;
+    }
+
+    function showModal(title, body) {
+      document.getElementById('modal-title').textContent = title;
+      document.getElementById('modal-body').textContent = body;
+      document.getElementById('modal').classList.remove('hidden');
+      document.getElementById('modal').classList.add('flex');
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>
